@@ -1,0 +1,316 @@
+package rbermani.android.barbellfinder;
+
+import java.util.ArrayList;
+import java.util.Vector;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ScaleDrawable;
+import android.util.DisplayMetrics;
+import android.view.View;
+
+public class BarbellWeightsView extends View {
+
+	private int width, height;
+	private int x, y;
+	private float displayScaleFactor;
+	private float dpiScaleFactor;
+	private float bitmapScaleFactor;
+
+	private BitmapDrawable[] weightStackup;
+	private BitmapDrawable legend;
+	private LayerDrawable stackUp;
+
+	private long num45Plates;
+	private long num35Plates;
+	private long num25Plates;
+	private long num10Plates;
+	private long num5Plates;
+	private long num2Plates;
+
+
+	private Resources res;
+
+	private Bitmap bmpFortyFive;
+	private Bitmap bmpThirtyFive;
+	private Bitmap bmpTwentyFive;
+	private Bitmap bmpTen;
+	private Bitmap bmpFive;
+	private Bitmap bmpTwo;
+	private Bitmap bmpBackground;
+	private Bitmap bmpLegend;
+
+	public BarbellWeightsView(Context context) {
+		super(context);
+		res = context.getResources();
+		DisplayMetrics metrics = new DisplayMetrics();
+		Activity mainActivity = (Activity) context;
+
+		mainActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+
+		// Grab bitmap resources
+		bmpFortyFive = BitmapFactory.decodeResource(res, R.drawable.fortyfive);
+		bmpThirtyFive = BitmapFactory.decodeResource(res, R.drawable.thirtyfive);
+		bmpTwentyFive = BitmapFactory.decodeResource(res, R.drawable.twentyfive);
+		bmpTen = BitmapFactory.decodeResource(res, R.drawable.ten);
+		bmpFive = BitmapFactory.decodeResource(res, R.drawable.five);
+		bmpTwo = BitmapFactory.decodeResource(res, R.drawable.two);
+		bmpBackground = BitmapFactory.decodeResource(res,R.drawable.barbell);
+		bmpLegend = BitmapFactory.decodeResource(res, R.drawable.legend);
+		legend = new BitmapDrawable(bmpLegend);
+
+		bitmapScaleFactor = (float)metrics.widthPixels / (float)bmpBackground.getWidth();
+		dpiScaleFactor = metrics.densityDpi / 300.0f;
+		displayScaleFactor = (float) dpiScaleFactor * bitmapScaleFactor;
+		buildStackUp(45);
+
+	}
+
+	private void calculatePlateCounts(int targetWeight) {
+
+		if (targetWeight <= 45){
+			targetWeight = 0;
+		} else {
+			targetWeight = (targetWeight - 45)/2;
+		}
+		num45Plates = num35Plates = num25Plates = 0;
+		num10Plates = num5Plates = num2Plates = 0;
+
+		while (targetWeight >= 45) {
+			num45Plates++;
+			targetWeight -= 45;
+
+		}
+
+		while (targetWeight >= 35) {
+			num35Plates++;
+			targetWeight -= 35;
+
+		}
+
+		while (targetWeight >= 25) {
+			num25Plates++;
+			targetWeight -= 25;
+		}
+
+		while (targetWeight >= 10){
+			num10Plates++;
+			targetWeight -= 10;
+		}
+
+		while (targetWeight >= 5) {
+			num5Plates++;
+			targetWeight -= 5;
+		}
+
+		if (targetWeight > 0) {
+			num2Plates++;
+			targetWeight = 0;
+		}
+
+	}
+
+	public void buildStackUp(int targetWeight){
+
+		int runningX = 0;
+		int runningY = 0;
+		int barOffset = (int)(670.0*dpiScaleFactor);
+		int halfPoint45 = (bmpBackground.getHeight()/2-(bmpFortyFive.getHeight()/2));
+		int halfPoint35 = (bmpBackground.getHeight()/2-(bmpThirtyFive.getHeight()/2));
+		int halfPoint25 = (bmpBackground.getHeight()/2-(bmpTwentyFive.getHeight()/2));
+		int halfPoint10 = (bmpBackground.getHeight()/2-(bmpTen.getHeight()/2));
+		int halfPoint5 = (bmpBackground.getHeight()/2-(bmpFive.getHeight()/2));
+		int halfPoint2 = (bmpBackground.getHeight()/2-(bmpTwo.getHeight()/2));
+
+		calculatePlateCounts(targetWeight);
+
+		ArrayList<BitmapDrawable> bitmapPlates = new ArrayList<BitmapDrawable>();
+
+		BitmapDrawable tmp;
+
+		Rect rctFortyFive = new Rect();
+		Rect rctThirtyFive= new Rect();
+		Rect rctTwentyFive= new Rect();
+		Rect rctTen= new Rect();
+		Rect rctFive= new Rect();
+		Rect rctTwo= new Rect();
+		Rect rctBackground = new Rect();	
+
+		rctBackground.set(0, 0,
+				bmpBackground.getWidth(),
+				bmpBackground.getHeight());
+		tmp = new BitmapDrawable(res, bmpBackground);
+		tmp.setBounds(rctBackground);
+		bitmapPlates.add(tmp);
+
+		runningX = barOffset;
+		runningY = halfPoint45;
+		rctFortyFive.set(runningX, runningY, 
+				runningX+bmpFortyFive.getWidth(),
+				runningY+bmpFortyFive.getHeight());
+		
+		if (num45Plates > 0){
+			while (num45Plates > 0){
+				tmp = new BitmapDrawable(res, bmpFortyFive);
+				tmp.setBounds(rctFortyFive);
+
+				bitmapPlates.add(tmp);
+				rctFortyFive.offset(-bmpFortyFive.getWidth(), 0);
+
+				if (num45Plates != 1)
+					runningX -= (bmpFortyFive.getWidth());
+
+				num45Plates--;
+			}
+		}
+		if (num35Plates > 0){
+			
+			runningY = halfPoint35;
+			if (runningX != barOffset)
+				runningX -= bmpThirtyFive.getWidth();
+			
+			rctThirtyFive.set(runningX, runningY, 
+					runningX+bmpThirtyFive.getWidth(),
+					runningY+bmpThirtyFive.getHeight());
+
+			while (num35Plates > 0){
+				tmp = new BitmapDrawable(res, bmpThirtyFive);
+				tmp.setBounds(rctThirtyFive);
+
+				bitmapPlates.add(tmp);
+				rctThirtyFive.offset(-bmpThirtyFive.getWidth(), 0);
+
+				if (num35Plates != 1) {
+					runningX -= (bmpThirtyFive.getWidth());
+				}
+
+				num35Plates--;
+			}
+		}
+		if (num25Plates > 0){
+			runningY = halfPoint25;
+			if (runningX != barOffset)
+			runningX -= bmpTwentyFive.getWidth();
+			rctTwentyFive.set(runningX, runningY, 
+					runningX+bmpTwentyFive.getWidth(),
+					runningY+bmpTwentyFive.getHeight());
+
+			while (num25Plates > 0){
+
+				tmp = new BitmapDrawable(res, bmpTwentyFive);
+				tmp.setBounds(rctTwentyFive);
+
+				bitmapPlates.add(tmp);
+				rctTwentyFive.offset(-bmpTwentyFive.getWidth(), 0);
+				if (num25Plates != 1) {
+					runningX -= (bmpTwentyFive.getWidth());
+				}
+				num25Plates--;
+			}
+		}
+		if (num10Plates > 0){
+			runningY = halfPoint10;
+			if (runningX != barOffset)
+			runningX -= bmpTen.getWidth();
+
+			rctTen.set(runningX, runningY, 
+					runningX+bmpTen.getWidth(),
+					runningY+bmpTen.getHeight());
+
+			while (num10Plates > 0){
+
+				tmp = new BitmapDrawable(res, bmpTen);
+				tmp.setBounds(rctTen);
+
+				bitmapPlates.add(tmp);
+				rctTen.offset(-bmpTen.getWidth(), 0);
+				if (num10Plates != 1){
+					runningX -= (bmpTen.getWidth());
+				}
+				num10Plates--;
+			}
+		}
+
+		if (num5Plates > 0){
+			runningY =  halfPoint5;
+			if (runningX != barOffset)
+			runningX -= bmpFive.getWidth();
+			rctFive.set(runningX, runningY, 
+					runningX+bmpFive.getWidth(),
+					runningY+bmpFive.getHeight());
+
+			while (num5Plates > 0){
+
+				tmp = new BitmapDrawable(res, bmpFive);
+				tmp.setBounds(rctFive);
+
+				bitmapPlates.add(tmp);
+				rctFive.offset(-bmpFive.getWidth(), 0);
+				if (num5Plates != 1){
+					runningX -= (bmpFive.getWidth());
+				}
+				num5Plates--;
+			}
+		}
+		if (num2Plates > 0){
+			runningY =  halfPoint2;
+			if (runningX != barOffset)
+			runningX -= bmpTwo.getWidth();
+			rctTwo.set(runningX, runningY,
+					runningX+bmpTwo.getWidth(),
+					runningY+bmpTwo.getHeight());
+
+			while (num2Plates > 0) {
+
+				tmp = new BitmapDrawable(res, bmpTwo);
+				tmp.setBounds(rctTwo);
+
+				bitmapPlates.add(tmp);
+				rctTwo.offset(-bmpTwo.getWidth(), 0);
+				if (num2Plates != 1){
+					runningX -= (bmpTwo.getWidth());
+				}
+				num2Plates--;
+			}
+		}
+		weightStackup = new BitmapDrawable[bitmapPlates.size()];
+		bitmapPlates.toArray(weightStackup);
+
+
+		stackUp = new LayerDrawable(weightStackup);
+		this.invalidate();
+
+	}
+
+	protected void onDraw(Canvas canvas) {
+		int legX=this.getWidth()- bmpLegend.getWidth();
+		int legY=this.getHeight() - bmpLegend.getHeight();
+
+		Rect rctLegend = new Rect(legX, legY, legX+bmpLegend.getWidth(),
+				legY+bmpLegend.getHeight());
+
+		legend.setBounds(rctLegend);
+
+		canvas.save();
+		canvas.drawColor(Color.BLACK);
+		canvas.rotate(90);
+		int centerPoint = (int)(this.getWidth()*0.75);
+		canvas.translate((int)(this.getHeight()*0.10),-centerPoint);
+		canvas.scale(bitmapScaleFactor, bitmapScaleFactor);
+
+		stackUp.draw(canvas);
+		canvas.restore();
+		legend.draw(canvas);
+
+
+	}
+}

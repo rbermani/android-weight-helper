@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:myapp="http://schemas.android.com/apk/res/rbermani.android.weighthelper" 
+    android:orientation="vertical"
+    android:layout_width="fill_parent" android:id="@+id/BackgroundLayout" android:layout_height="fill_parent" android:layout_gravity="center">
+
+
+    <com.admob.android.ads.AdView android:layout_height="wrap_content" android:layout_gravity="top" android:id="@+id/ad" android:layout_width="wrap_content"></com.admob.android.ads.AdView>
+
+        <TextView android:layout_height="wrap_content" android:text="@string/prompt" android:layout_width="wrap_content" android:id="@+id/textView1" android:layout_gravity="top|center"></TextView>
+        <rbermani.android.weighthelper.BarbellWeightsView android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/barbellhelper"></rbermani.android.weighthelper.BarbellWeightsView>
+    
+
+</LinearLayout>

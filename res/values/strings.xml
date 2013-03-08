@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WeightHelper</string>
+     <string name="about">Weight Helper\nCreated by Machine Elves Media\nCopyright (c) 2011 Machine Elves Media\nAll Rights Reserved</string>
+     <string name="prompt">Touch screen to enter weight</string>
+   <string name="aboutMenu">About</string>
+</resources>
